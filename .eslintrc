@@ -16,7 +16,7 @@
     "func-names": ["warn", "always", { "generators": "never" }],
     "no-underscore-dangle": "off",
     "camelcase": [
-      "error",
+      "warning",
       {
         "properties": "never",
         "ignoreDestructuring": true

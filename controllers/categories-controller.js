@@ -1,11 +1,13 @@
 const categoriesService = require('../services/categories-service')
 
 module.exports = {
-  async getById(req, res) {
+  async list(req, res) {
     try {
-      const { id } = req.params
-      const category = await categoriesService.getById(id)
-      return res.status(200).json(category)
+      const { query } = req
+      const { limit, offset, sort, order } = query
+      const { name, name__contains } = query
+      const categories = await categoriesService.list({ name, name__contains }, { limit, offset, sort, order })
+      return res.status(200).json(categories)
     } catch (err) {
       return res.status(err.statusCode || 500).json({
         error: err.name,
@@ -14,13 +16,11 @@ module.exports = {
     }
   },
 
-  async list(req, res) {
+  async getById(req, res) {
     try {
-      const { query } = req
-      const { limit, offset, sort, order } = query
-      const { name, name__contains } = query
-      const categories = await categoriesService.list({ name, name__contains }, { limit, offset, sort, order })
-      return res.status(200).json(categories)
+      const { id } = req.params
+      const category = await categoriesService.getById(id)
+      return res.status(200).json(category)
     } catch (err) {
       return res.status(err.statusCode || 500).json({
         error: err.name,

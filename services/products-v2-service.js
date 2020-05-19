@@ -20,12 +20,20 @@ module.exports = {
    */
   async create({ name, price, category_id }) {
     if (!name || name === '') {
-      /** adicionar classe de erro com status code */
+      throw new ValidationError({ message: 'Field name is required', statusCode: 422 })
     }
 
-    const product = await Products.update(/** atualizar model */)
+    if (!price || price === 0) {
+      throw new ValidationError({ message: 'Field price is required', statusCode: 422 })
+    }
 
-    return productsV1Service.serialize(/** retornar produto serializado */)
+    if (!category_id || category_id === '') {
+      throw new ValidationError({ message: 'Field category_id is required', statusCode: 422 })
+    }
+
+    const product = await Products.create({ name, price, category_id })
+
+    return productsV1Service.serialize(product)
   },
 
   /**
@@ -39,22 +47,27 @@ module.exports = {
   async update(id, data) {
     const product = await Products.findByPk(id)
 
-    /** disparar erro caso o produto não exista */
-    /** disparar erro caso o campo name seja string vazia */
+    if (!product) {
+      throw new NotFoundError({ message: `Product ${id} not found`, statusCode: 404 })
+    }
+    
+    if (data.name === '') {
+      throw new ValidationError({ message: 'Field name is required', statusCode: 422 })
+    }
 
     product.name = data.name
 
     if (data.price) {
-      /** atualizar price caso seja passado */
+      product.price = data.price
     }
 
     if (data.category_id) {
-      /** atualizar category_id caso seja passado */
+      product.category_id = data.category_id
     }
 
-    /** salvar produto atualizado */
+    await product.save()
 
-    return productsV1Service.serialize(/** retornar produto serializado */)
+    return productsV1Service.serialize(product)
   },
 
   /**
@@ -63,12 +76,12 @@ module.exports = {
    * @throws { NotFoundError }
    */
   async delete(id) {
-    /** busca produto do banco usando Products.findByPk */
+    const product = await Products.findByPk(id)
 
     if (!product) {
-      throw new NotFoundError(/** retorna mensagem de erro e status code */)
+      throw new NotFoundError({ message: `Product ${id} not found`, statusCode: 404 })
     }
 
-    /** remove produto do banco */
+    await product.destroy()
   }
 }

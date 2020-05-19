@@ -3,9 +3,10 @@ const productsV2Service = require('../services/products-v2-service')
 module.exports = {
   async create(req, res) {
     try {
-      /** pegar dados do body da req */
-      const product = await productsV2Service.create(/** passar dados para a criação */)
-      /** atribuir produto criado a response */
+      const { body } = req
+      // const { name, price, category_id } = req.body
+      const product = await productsV2Service.create(body)
+      return res.status(201).json(product)
     } catch (err) {
       return res.status(err.statusCode || 500).json({
         error: err.name,
@@ -16,10 +17,10 @@ module.exports = {
 
   async update(req, res) {
     try {
-      /** buscar id do produto dos parametros da req */
-      /** pegar dados do body da req */
-      const product = await productsV2Service.update(/** passar dados para atualizar */)
-      /** atribuir produto atualizado na response */
+      const { id } = req.params
+      const { name, price, category_id } = req.body
+      const product = await productsV2Service.update(id, { name, price, category_id })
+      return res.status(200).json(product)
     } catch (err) {
       return res.status(err.statusCode || 500).json({
         error: err.name,
@@ -30,9 +31,9 @@ module.exports = {
 
   async delete(req, res) {
     try {
-      /** buscar id do produto dos parametros da req */
-      await productsV2Service.delete(/** passar id do produto para deletar */)
-      return res.sendStatus(/** passar satus code indicando a remoção */)
+      const { id } = req.params
+      await productsV2Service.delete(id)
+      return res.sendStatus(204)
     } catch (err) {
       return res.status(err.statusCode || 500).json({
         error: err.name,
